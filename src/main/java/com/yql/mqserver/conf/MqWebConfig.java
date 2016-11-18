@@ -1,4 +1,4 @@
-package com.yql.biz.conf;
+package com.yql.mqserver.conf;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.MessageSource;
@@ -12,7 +12,8 @@ import java.util.Locale;
  * Created by wangdayin
  */
 @Configuration
-public class WebConfig {
+public class MqWebConfig {
+
     @Bean
     @ConditionalOnMissingBean
     public MessageSourceAccessor sourceAccessor(MessageSource messageSource) {

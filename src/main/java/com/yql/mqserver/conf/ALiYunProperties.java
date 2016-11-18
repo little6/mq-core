@@ -1,17 +1,12 @@
-package com.yql.biz.conf;
+package com.yql.mqserver.conf;
 
-import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import javax.annotation.Resource;
 
 /**
  * Created by wangdayin
  */
-
+@ConfigurationProperties(prefix = "yql.mq")
 public class ALiYunProperties {
     //签名id
     private String secretId = "LTAIukPGqYkArvKd";
@@ -20,13 +15,13 @@ public class ALiYunProperties {
     //发送消息服务器地址
     private String ONSAddr = "http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet";
     //消息发送超时时间
-    private int timeout = 3000;
+    private Integer timeout = 3000;
 
-    public int getTimeout() {
+    public Integer getTimeout() {
         return timeout;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(Integer timeout) {
         this.timeout = timeout;
     }
 
