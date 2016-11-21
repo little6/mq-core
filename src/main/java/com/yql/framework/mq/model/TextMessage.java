@@ -78,8 +78,18 @@ public class TextMessage implements MqMessage, Serializable {
     }
 
     @Override
-    public byte[] getBody() {
+    public byte[] getBodyAsBytes() {
         return this.body;
+    }
+
+    @Override
+    public String getBodyAsText() {
+        return new String(this.body);
+    }
+
+    @Override
+    public <T> T getBodyAs(Class<T> bodyClass) {
+        return JSON.parseObject(this.body, bodyClass);
     }
 
     public void setBody(byte[] body) {

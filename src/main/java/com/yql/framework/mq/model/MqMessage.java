@@ -10,9 +10,13 @@ public interface MqMessage {
 
     String getKey();
 
-    byte[] getBody();
+    byte[] getBodyAsBytes();
 
     String getMsgID();
+
+    String getBodyAsText();
+
+    <T> T getBodyAs(Class<T> bodyClass);
 
     int getReconsumeTimes();
 
