@@ -22,14 +22,14 @@ public class TextMessage implements MqMessage, Serializable {
         this.body = body.getBytes();
     }
 
-    public TextMessage(String tag, String topic, String body, String key) {
+    public TextMessage(String topic, String tag, String key, String body) {
         this.tag = tag;
         this.topic = topic;
         this.body = body.getBytes();
         this.key = key;
     }
 
-    public TextMessage(String tag, String topic, byte[] body, String key, String msgID) {
+    public TextMessage(String topic, String tag, String key, byte[] body, String msgID) {
         this.tag = tag;
         this.topic = topic;
         this.body = body;
@@ -43,7 +43,7 @@ public class TextMessage implements MqMessage, Serializable {
         this.body = JSON.toJSONBytes(body);
     }
 
-    public TextMessage(String tag, String topic, Object body, String key) {
+    public TextMessage(String topic, String tag, String key, Object body) {
         this.tag = tag;
         this.topic = topic;
         this.body = JSON.toJSONBytes(body);

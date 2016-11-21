@@ -87,7 +87,7 @@ public class MqAutoConfiguration {
                 subscription.setTopic(listener.getTopic());
                 subscription.setExpression(listener.getTag());
                 map.put(subscription, (message, context) -> {
-                    MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getBody(), message.getKey(), message.getMsgID());
+                    MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getKey(), message.getBody(), message.getMsgID());
                     String result = listener.onMessage(m);
                     if ("SUCCESS".equals(result)) {
                         return Action.CommitMessage;
