@@ -1,12 +1,12 @@
 package com.yql.framework.mq;
 
-import com.aliyun.openservices.ons.api.*;
-import com.aliyun.openservices.ons.api.bean.Subscription;
+import com.aliyun.openservices.ons.api.Consumer;
+import com.aliyun.openservices.ons.api.ONSFactoryAPI;
+import com.aliyun.openservices.ons.api.Producer;
+import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.aliyun.openservices.ons.api.impl.ONSFactoryImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ConsumerImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ProducerImpl;
-import com.yql.framework.mq.model.MqMessage;
-import com.yql.framework.mq.model.TextMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,9 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -75,28 +73,8 @@ public class MqAutoConfiguration {
         @ConditionalOnMissingBean(MessageConsumer.class)
         @Bean(initMethod = "start", destroyMethod = "shutdown")
         public MessageConsumer aliYunMessageConsumer(List<com.yql.framework.mq.listener.MessageListener> listeners) {
-            Map<Subscription, com.aliyun.openservices.ons.api.MessageListener> map = messageListenerMap(listeners);
             Consumer consumer = factoryAPI.createConsumer(this);
-            return new AliYunMessageConsumer(consumer, map);
-        }
-
-        private Map<Subscription, com.aliyun.openservices.ons.api.MessageListener> messageListenerMap(List<com.yql.framework.mq.listener.MessageListener> listeners) {
-            Map<Subscription, com.aliyun.openservices.ons.api.MessageListener> map = new HashMap<>();
-            for (com.yql.framework.mq.listener.MessageListener listener : listeners) {
-                Subscription subscription = new Subscription();
-                subscription.setTopic(listener.getTopic());
-                subscription.setExpression(listener.getTag());
-                map.put(subscription, (message, context) -> {
-                    MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getKey(), message.getBody(), message.getMsgID());
-                    String result = listener.onMessage(m);
-                    if ("SUCCESS".equals(result)) {
-                        return Action.CommitMessage;
-                    }
-                    return Action.ReconsumeLater;
-                });
-            }
-            return map;
+            return new AliYunMessageConsumer(consumer, listeners);
         }
     }
-
 }

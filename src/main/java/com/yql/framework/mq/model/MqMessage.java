@@ -4,6 +4,11 @@ package com.yql.framework.mq.model;
  * @author wangxiaohong
  */
 public interface MqMessage {
+
+    static final String SUCCESS = "SUCCESS";
+
+    static final String FAIL = "FAIL";
+
     String getTopic();
 
     String getTag();
