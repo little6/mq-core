@@ -22,7 +22,7 @@ import java.util.Properties;
  * @author wangxiaohong
  */
 @Configuration
-@ConditionalOnProperty(prefix = "yql", name = "mq", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yql", name = "mq")
 @ConditionalOnClass(value = {Producer.class, ProducerImpl.class, Consumer.class, ConsumerImpl.class})
 @EnableConfigurationProperties(AliYunProperties.class)
 public class MqAutoConfiguration {
@@ -37,7 +37,7 @@ public class MqAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(prefix = "yql.mq.producer", name = "ProducerId", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "yql.mq.producer", name = "ProducerId")
     @ConfigurationProperties(prefix = "yql.mq.producer")
     protected static class ProducerConfiguration extends Properties {
 
