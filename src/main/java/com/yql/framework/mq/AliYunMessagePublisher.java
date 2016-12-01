@@ -19,6 +19,8 @@ public class AliYunMessagePublisher implements MessagePublisher {
     @Override
     public Result send(MqMessage message) {
         Message m = new Message(message.getTopic(), message.getTag(), message.getKey(), message.getBodyAsBytes());
+        m.setReconsumeTimes(message.getReconsumeTimes());
+        m.setStartDeliverTime(message.getStartDeliverTime());
         SendResult sendResult = producer.send(m);
         Result result = new Result();
         result.setMessageId(sendResult.getMessageId());
