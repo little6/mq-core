@@ -7,6 +7,8 @@ import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.aliyun.openservices.ons.api.impl.ONSFactoryImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ConsumerImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ProducerImpl;
+import com.yql.framework.mq.listener.MessageListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,7 +24,7 @@ import java.util.Properties;
  * @author wangxiaohong
  */
 @Configuration
-@ConditionalOnProperty(prefix = "yql", name = "mq")
+@ConditionalOnProperty(prefix = "yql", name = "mq", matchIfMissing = true)
 @ConditionalOnClass(value = {Producer.class, ProducerImpl.class, Consumer.class, ConsumerImpl.class})
 @EnableConfigurationProperties(AliYunProperties.class)
 public class MqAutoConfiguration {
@@ -59,6 +61,7 @@ public class MqAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(prefix = "yql.mq.consumer", name = "ConsumerId")
+    @ConditionalOnBean(MessageListener.class)
     @ConfigurationProperties(prefix = "yql.mq.consumer")
     protected static class ConsumerConfiguration extends Properties {
         private transient ONSFactoryAPI factoryAPI;
