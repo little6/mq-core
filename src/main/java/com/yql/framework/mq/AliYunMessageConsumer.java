@@ -7,6 +7,7 @@ import com.aliyun.openservices.ons.api.bean.Subscription;
 import com.yql.framework.mq.model.MqMessage;
 import com.yql.framework.mq.model.TextMessage;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -65,7 +66,7 @@ public class AliYunMessageConsumer implements MessageConsumer {
                 MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getKey(), message.getBody(), message.getMsgID());
                 for (com.yql.framework.mq.listener.MessageListener messageListener : messageListeners) {
                     String tag = messageListener.getTag();
-                    String[] tags = tag.split("||");
+                    String[] tags = StringUtils.delimitedListToStringArray(tag,"||");
                     Iterator<String> iterator = Arrays.asList(tags).iterator();
                     if (CollectionUtils.contains(iterator, m.getTag())) {
                         String result = messageListener.onMessage(m);
