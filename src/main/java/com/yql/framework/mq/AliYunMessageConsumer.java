@@ -6,11 +6,9 @@ import com.aliyun.openservices.ons.api.MessageListener;
 import com.aliyun.openservices.ons.api.bean.Subscription;
 import com.yql.framework.mq.model.MqMessage;
 import com.yql.framework.mq.model.TextMessage;
+import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author wangxiaohong
@@ -47,19 +45,38 @@ public class AliYunMessageConsumer implements MessageConsumer {
 
     private Map<Subscription, com.aliyun.openservices.ons.api.MessageListener> messageListenerMap(List<com.yql.framework.mq.listener.MessageListener> listeners) {
         Map<Subscription, com.aliyun.openservices.ons.api.MessageListener> map = new HashMap<>();
+        Map<String, List<com.yql.framework.mq.listener.MessageListener>> topicMap = new HashMap<>();
         for (com.yql.framework.mq.listener.MessageListener listener : listeners) {
-            Subscription subscription = new Subscription();
-            subscription.setTopic(listener.getTopic());
-            subscription.setExpression(listener.getTag());
-            map.put(subscription, (message, context) -> {
-                MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getKey(), message.getBody(), message.getMsgID());
-                String result = listener.onMessage(m);
-                if (MqMessage.SUCCESS.equals(result)) {
-                    return Action.CommitMessage;
+            topicMap.compute(listener.getTopic(), (s, messageListeners) -> {
+                List<com.yql.framework.mq.listener.MessageListener> list = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(messageListeners)) {
+                    list.addAll(messageListeners);
                 }
-                return Action.ReconsumeLater;
+                list.add(listener);
+                return list;
             });
         }
+
+        topicMap.forEach((topic, messageListeners) -> {
+            Subscription subscription = new Subscription();
+            subscription.setTopic(topic);
+            subscription.setExpression("*");
+            map.put(subscription, (message, context) -> {
+                MqMessage m = new TextMessage(message.getTopic(), message.getTag(), message.getKey(), message.getBody(), message.getMsgID());
+                for (com.yql.framework.mq.listener.MessageListener messageListener : messageListeners) {
+                    String tag = messageListener.getTag();
+                    String[] tags = tag.split("||");
+                    Iterator<String> iterator = Arrays.asList(tags).iterator();
+                    if (CollectionUtils.contains(iterator, m.getTag())) {
+                        String result = messageListener.onMessage(m);
+                        if (!MqMessage.SUCCESS.equals(result)) {
+                            return Action.ReconsumeLater;
+                        }
+                    }
+                }
+                return Action.CommitMessage;
+            });
+        });
         return map;
     }
 }
