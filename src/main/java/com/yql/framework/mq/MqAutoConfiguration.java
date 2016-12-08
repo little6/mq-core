@@ -8,6 +8,7 @@ import com.aliyun.openservices.ons.api.impl.ONSFactoryImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ConsumerImpl;
 import com.aliyun.openservices.ons.api.impl.rocketmq.ProducerImpl;
 import com.yql.framework.mq.listener.MessageListener;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import java.util.List;
 import java.util.Properties;
@@ -33,8 +35,22 @@ public class MqAutoConfiguration {
     @ConditionalOnClass({ONSFactoryImpl.class})
     protected static class ONSFactoryConfiguration {
         @Bean
+        @DependsOn(value = "onsSystemEnvInitializer")
         public ONSFactoryAPI onsFactory() {
             return new ONSFactoryImpl();
+        }
+
+        @Bean("onsSystemEnvInitializer")
+        @ConfigurationProperties(prefix = "ons.client")
+        public OnsSystemEnvInitializer onsSystemEnvInitializer() {
+            return new OnsSystemEnvInitializer();
+        }
+    }
+
+    protected static class OnsSystemEnvInitializer extends Properties implements InitializingBean {
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            this.forEach((k, v) -> System.setProperty("ons.client." + k, String.valueOf(v)));
         }
     }
 
